@@ -6,82 +6,111 @@ const
     execCb = require('child_process').exec,
     exec = promisify(execCb)
 
-function sendInput(args, t) {
-    var cmd = config.adbPath + ' shell input ' + args
-    console.log('Executing ' + cmd)
-    return exec(cmd).then((res) => {
-        console.log(`stdout: ${res.stdout}`);
-        console.error(`stderr: ${res.stderr}`);
-        return delay(t)
-    })
-}
-
-function mi8toAnyScreen(x, y) {
-    var s = [x / 1080, y / 2248]
-    console.log(s[0] + ', ' + s[1] + ' /*' + ptoPx(s[0], s[1]) + '*/')
-}
-
-function ptoPx(x, y) {
-    return '' + Math.floor(x * config.screenSize[0]) + ' ' + Math.floor(y * config.screenSize[1])
-}
-
-
-function tap(x, y, sleep = config.sleep) {
-    console.log('tapping ' + x + ' ' + y)
-    return sendInput('tap ' + ptoPx(x, y), sleep)
-}
-
-function pasteCmd(sleep = config.sleep) {
-    console.log('pasting')
-    return sendInput('keyevent 279', sleep * .1)
-}
-
-function longTap(x, y, sleep = config.sleep) {
-    console.log('longTapping ' + x + ' ' + y)
-    return sendInput('swipe ' + ptoPx(x, y) + ' ' + ptoPx(x, y) + ' ' + sleep, sleep)
-}
-
-function swipeRight(sleep = config.sleep) {
-    console.log('swiping right')
-    return sendInput('swipe ' + ptoPx(0.83, 0.53) + ' ' + ptoPx(0.19, 0.56) + ' 100', 500)
-}
-
 function delay(t, val) {
     return new Promise(function (resolve) {
-        console.log('Sleeping for ' + t + 'ms')
         setTimeout(function () {
-            console.log('Sleept for ' + t + 'ms')
             resolve(val);
         }, t);
     });
 }
 
-function renamePok() {
-    return tap(0.9259259259259259, 0.9564056939501779 /*1000 2150 menu*/, config.sleep * .3
-    ).then(() =>
-        tap(0.9259259259259259, 0.7562277580071174 /*1000 1700 appraise*/)
-    ).then(() =>
-        tap(0.46296296296296297, 0.44483985765124556 /*500 1000 screen middle, skip first appraise screen*/)
-    ).then(() =>
-        tap(0.8611111111111112, 0.2 /*930 400 camera button, the CalcyIV*/, config.sleep * .5)
-    ).then(() =>
-        tap(0.46296296296296297, 0.6672597864768683 /*500 1500 close CalcyIV screen*/, config.sleep * .5)
-    ).then(() =>
-        tap(0.46296296296296297, 0.6672597864768683 /*500 1500 close appraise*/)
-    ).then(() =>
-        tap(0.46296296296296297, 0.44483985765124556 /*500 1000 name area, open rename*/)
-    ).then(() =>
-        tap(0.9259259259259259, 0.9119217081850534 /*1000 2050 backspace on the keyboard*/, config.sleep * .2)
-    ).then(() =>
-        pasteCmd()
-    ).then(() =>
-        tap(0.8796296296296297, 0.645017793594306 /*950 1450 OK on input*/, config.sleep * .3)
-    ).then(() =>
-        tap(0.46296296296296297, 0.5338078291814946 /*500 1199 OK on the rename dialog*/, 4 * config.sleep)
-    ).then(() =>
-        swipeRight() //goto next poke
-    ).then(() =>
-        renamePok()) //repeat
+function sendInputToDevice(args) {
+    var cmd = config.adbPath + ' shell input ' + args
+    console.log('Executing ' + cmd)
+    return exec(cmd);
 }
 
-renamePok()
+async function openMenu() {
+    console.log('Opening menu')
+    await sendInputToDevice('tap ' + config.menu[0] + ' ' + config.menu[1]);
+    return delay(config.sleep);
+}
+
+async function openAppraisal() {
+    console.log('Opening Apraisal Menu')
+    await sendInputToDevice('tap ' + config.appraisal[0] + ' ' + config.appraisal[1]);
+    return delay(config.sleep);
+}
+
+async function skipAppraisal() {
+    console.log('Skipping Pre Apraisal')
+    await sendInputToDevice('tap ' + config.skipAppraisal[0] + ' ' + config.skipAppraisal[1]);
+    return delay(config.sleep);
+}
+
+
+function swipeRightCoOrdinates() {
+    console.log('Swiping to Right')
+    return '' + config.rightSideCoOrdinate[0] + ' ' + config.rightSideCoOrdinate[1] + ' ' + config.leftSideCoOrdinate[0] + ' ' + config.leftSideCoOrdinate[1]
+}
+
+function swipeLeftCoOrdinates() {
+    console.log('Swiping to Left')
+    return '' + config.leftSideCoOrdinate[0] + ' ' + config.leftSideCoOrdinate[1] + ' ' + config.rightSideCoOrdinate[0] + ' ' + config.rightSideCoOrdinate[1]
+}
+
+async function gotoNextPokemon() {
+    console.log('Going to Next pokemon')
+    await sendInputToDevice('swipe ' + swipeRightCoOrdinates());
+    return delay(config.sleep);
+}
+
+async function gotoPrevPokemon() {
+    console.log('Going to Previous pokemon')
+    await sendInputToDevice('swipe ' + swipeLeftCoOrdinates());
+    return delay(config.sleep);
+}
+
+async function renamePokemon() {
+
+    console.log('Renaming Pokemon')
+    await sendInputToDevice('tap ' + config.rename[0] + ' ' + config.rename[1]);
+    await delay(config.sleep);
+
+    /* Clear the existing name */
+    console.log('Clearing name')
+    await sendInputToDevice('keyevent --longpress  KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL KEYCODE_DEL');
+    await delay(config.sleep);
+
+    /* Paste the name from clipboard */
+    console.log('Pasting Name')
+    await sendInputToDevice('keyevent 279');
+    await delay(config.sleep);
+
+    /* Click OK on keyboard */
+    console.log('Clicking OK on keyboard')
+    await sendInputToDevice('tap ' + config.okKeyboard[0] + ' ' + config.okKeyboard[1]);
+    await delay(config.sleep);
+
+    /* Click OK on PoGo */
+    console.log('Clicking OK on PoGo')
+    await sendInputToDevice('tap ' + config.okPoGo[0] + ' ' + config.okPoGo[1]);
+    return delay(config.sleep * 2);
+}
+
+async function renamePokemons() {
+    for (let sets = 0; sets < config.maxRename / config.maxCache; sets++) {
+        await openMenu();
+        await openAppraisal();
+        await skipAppraisal();
+
+        /*First cache the pokemons appraisal */
+        for (let cache = 0; cache < config.maxCache; cache++) {
+            await gotoNextPokemon();
+        }
+        /* Go back to the first cached pokemon */
+        for (let cache1 = 0; cache1 < config.maxCache; cache1++) {
+            await gotoPrevPokemon();
+        }
+
+        /* Dismiss the appraisal screen */
+        await skipAppraisal();
+
+        for (let cache2 = 0; cache2 < config.maxCache; cache2++) {
+            await renamePokemon();
+            await gotoNextPokemon();
+        }
+    }
+}
+
+renamePokemons()
