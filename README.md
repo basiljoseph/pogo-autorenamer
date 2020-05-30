@@ -26,17 +26,16 @@ Licensed under the terms of the ISC license, see the LICENSE file for details.
 
 1. Clone the repo.
 1. Navigate to the repo folder.
-1. Copy 'config.js.example' and remove the '.example' (leaving 'config.js').
 1. Adjust the path to your `adb`.
-1. Adjust screen size.
+1. Adjust screen size and other parameters.
 1. For slow phones increase the sleep value.
 
 # Running
 
 1. Launch the CalcyIV.
 1. Set up desired renaming options.
+1. Enable Video Mode
 1. Click 'Switch to Game' button.
 1. Open first pokemon screen.
-1. Place the CalcyIV icon just above the Camera button.
 1. Type `npm start` in Terminal app on your PC.
 1. Watch pokes renaming.

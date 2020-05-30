@@ -1,11 +1,14 @@
 {
   "name": "pokeclicker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "node.js": "0.0.1-security"
+  }
 }

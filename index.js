@@ -20,33 +20,9 @@ function sendInputToDevice(args) {
     return exec(cmd);
 }
 
-async function openMenu() {
-    console.log('Opening menu')
-    await sendInputToDevice('tap ' + config.menu[0] + ' ' + config.menu[1]);
-    return delay(config.sleep);
-}
-
-async function openAppraisal() {
-    console.log('Opening Apraisal Menu')
-    await sendInputToDevice('tap ' + config.appraisal[0] + ' ' + config.appraisal[1]);
-    return delay(config.sleep);
-}
-
-async function skipAppraisal() {
-    console.log('Skipping Pre Apraisal')
-    await sendInputToDevice('tap ' + config.skipAppraisal[0] + ' ' + config.skipAppraisal[1]);
-    return delay(config.sleep);
-}
-
-
 function swipeRightCoOrdinates() {
     console.log('Swiping to Right')
     return '' + config.rightSideCoOrdinate[0] + ' ' + config.rightSideCoOrdinate[1] + ' ' + config.leftSideCoOrdinate[0] + ' ' + config.leftSideCoOrdinate[1]
-}
-
-function swipeLeftCoOrdinates() {
-    console.log('Swiping to Left')
-    return '' + config.leftSideCoOrdinate[0] + ' ' + config.leftSideCoOrdinate[1] + ' ' + config.rightSideCoOrdinate[0] + ' ' + config.rightSideCoOrdinate[1]
 }
 
 async function gotoNextPokemon() {
@@ -55,9 +31,21 @@ async function gotoNextPokemon() {
     return delay(config.sleep);
 }
 
-async function gotoPrevPokemon() {
-    console.log('Going to Previous pokemon')
-    await sendInputToDevice('swipe ' + swipeLeftCoOrdinates());
+async function getAppraisal() {
+    console.log('Opening menu')
+    await sendInputToDevice('tap ' + config.menu[0] + ' ' + config.menu[1]);
+    await delay(config.sleep);
+
+    console.log('Opening Apraisal Menu')
+    await sendInputToDevice('tap ' + config.appraisal[0] + ' ' + config.appraisal[1]);
+    await delay(config.sleep);
+
+    console.log('Skipping Pre Apraisal')
+    await sendInputToDevice('tap ' + config.skipAppraisal[0] + ' ' + config.skipAppraisal[1]);
+    await delay(config.sleep);
+
+    console.log('Skipping Apraisal')
+    await sendInputToDevice('tap ' + config.skipAppraisal[0] + ' ' + config.skipAppraisal[1]);
     return delay(config.sleep);
 }
 
@@ -89,27 +77,10 @@ async function renamePokemon() {
 }
 
 async function renamePokemons() {
-    for (let sets = 0; sets < config.maxRename / config.maxCache; sets++) {
-        await openMenu();
-        await openAppraisal();
-        await skipAppraisal();
-
-        /*First cache the pokemons appraisal */
-        for (let cache = 0; cache < config.maxCache; cache++) {
-            await gotoNextPokemon();
-        }
-        /* Go back to the first cached pokemon */
-        for (let cache1 = 0; cache1 < config.maxCache; cache1++) {
-            await gotoPrevPokemon();
-        }
-
-        /* Dismiss the appraisal screen */
-        await skipAppraisal();
-
-        for (let cache2 = 0; cache2 < config.maxCache; cache2++) {
-            await renamePokemon();
-            await gotoNextPokemon();
-        }
+    for (let count = 0; count < config.maxRename; count++) {
+        await getAppraisal();
+        await renamePokemon();
+        await gotoNextPokemon();
     }
 }
 
