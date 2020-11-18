@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "rename": "node index.js",
+    "transfer": "node transfer.js"
   },
   "author": "",
   "license": "ISC",

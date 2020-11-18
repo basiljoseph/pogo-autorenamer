@@ -11,5 +11,10 @@ module.exports = {
     okKeyboard: [950,1105],
     okPoGo: [550,1100],
     sleep: 1000,
-    maxRename: 150
+    maxRename: 150,
+    maxTransfer: 50,
+    transfer: [800,1670],
+    transferConfirmation: [540,1160],
+    mythicalConfirmation: [540,1020],
+    nextTransfer: [200,1540]
 }
