@@ -2,7 +2,7 @@ module.exports = {
     adbPath: '%localappdata%\\Android\\Sdk\\platform-tools\\adb',
     screenSize: [1080,2160],
     menu: [950,1890],
-    appraisal: [800,1490],
+    appraisal: [800,1350],
     skipAppraisal: [540,1080],
     nextAppraisal: [1040,1570],
     rightSideCoOrdinate: [900,1400],
